@@ -1,11 +1,20 @@
+"use strict";
+
 var WebSocketServer = require('ws').Server;
 
-var wss = new WebSocketServer({ port: 8789 });
+var server = new WebSocketServer({ port: 8789 });
 
-wss.on('connection', function connection(ws) {
-    ws.on('message', function incoming(message) {
-        console.log('received: %s', message);
-    });
+var connections = [];
 
-    ws.send('something');
+server.on('connection', function connection(connection) {
+	connections.push(connection);
+	connection.on('message', function incoming(message) {
+		console.log('received: %s', message);
+		for (let c in connections) {
+			let conn = connections[c];
+			if (conn !== connection) {
+				conn.send(message);
+			}
+		}
+	});
 });
