@@ -26,6 +26,16 @@ function join(connection) {
 	games.push(newgame);
 }
 
+function findPlayer(connection) {
+	for (var p in connection.game.players) {
+		var player = connection.game.players[p];
+		if (player.connection === connection) {
+			return player;
+		}
+	}
+	return null;
+}
+
 server.on('connection', function connection(connection) {
 	try {
 		join(connection);
@@ -33,16 +43,14 @@ server.on('connection', function connection(connection) {
 			try {
 				console.log('received: %s', message);
 				var msg = JSON.parse(message);
+				var player = findPlayer(this);
 				switch (msg.command) {
 					case 'move':
-						for (var p in this.game.players) {
-							var player = this.game.players[p];
-							if (player.connection === this) {
-								player.x = msg.x;
-								player.y = msg.y;
-								break;
-							}
-						}
+						player.x = msg.x;
+						player.y = msg.y;
+						break;
+					case 'enter':
+						player.floor = msg.floor;
 						break;
 				}
 			}
@@ -76,8 +84,14 @@ setTimeout(function () {
 			var game = games[g];
 			for (var p in game.players) {
 				var player = game.players[p];
-				if (player.connection !== null) {
-					player.connection.send(JSON.stringify({}));
+				if (player.connection !== null && player.floor !== -1) {
+					for (var f in game.floors) {
+						var floor = game.floors[f];
+						for (var per in floor.persons) {
+							var person = floor.persons[per];
+							player.connection.send(JSON.stringify({command: 'movePerson', x: person.x, y: person.y}));
+						}
+					}
 				}
 			}
 		}

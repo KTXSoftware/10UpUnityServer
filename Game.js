@@ -6,6 +6,7 @@ var Person = function (id, player) {
 	this.y = 0;
 	this.player = player;
 	this.connection = null;
+	this.floor = -1;
 };
 
 Person.prototype.run = function () {
