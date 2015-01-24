@@ -8,6 +8,13 @@ var server = new WebSocketServer({ port: 8789 });
 
 var games = [];
 
+function updateAllPlayers(game) {
+	for (var p in game.players) {
+		var player = game.players[p];
+		player.changed = true;
+	}
+}
+
 function join(connection) {
 	for (var g in games) {
 		var game = games[g];
@@ -15,7 +22,7 @@ function join(connection) {
 			var player = game.players[p];
 			if (player.connection === null) {
 				player.connection = connection;
-				player.changed = true;
+				updateAllPlayers(game);
 				connection.game = game;
 				connection.send(JSON.stringify({
 					command: 'setPlayer',
@@ -27,7 +34,7 @@ function join(connection) {
 	}
 	var newgame = new Game();
 	newgame.players[0].connection = connection;
-	newgame.players[0].changed = true;
+	updateAllPlayers(newgame);
 	connection.game = newgame;
 	games.push(newgame);
 	connection.send(JSON.stringify({ command: 'setPlayer', id: 0 }));
