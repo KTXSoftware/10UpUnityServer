@@ -109,3 +109,7 @@ function sendUpdates() {
 }
 
 sendUpdates();
+
+//Translator.translate('Guten Tag, wer bist Du denn?', 'en', function (translation) {
+//	console.log('Translation:' +  translation);
+//});

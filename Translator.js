@@ -33,15 +33,11 @@ function updateToken(callback) {
 	req.end();
 }
 
-function translateWithToken(text, callback) {
-	var textEncoded = encodeURIComponent(text);
-	var from = "en";
-	var to = "de";
-
+function translateWithToken(text, to, callback) {
 	var transOptions = {
 		hostname: 'api.microsofttranslator.com',
 		port: 80,
-		path: '/v2/Http.svc/Translate?text=' + textEncoded + '&from=' + from + '&to=' + to,
+		path: '/v2/Http.svc/Translate?text=' + encodeURIComponent(text) + '&to=' + to,
 		method: 'GET',
 		headers: {
 			Authorization: 'Bearer ' + token.access_token
@@ -57,13 +53,13 @@ function translateWithToken(text, callback) {
 	transRequest.end();
 }
 
-exports.translate = function (text, callback) {
+exports.translate = function (text, to, callback) {
 	if (token === null) {
 		updateToken(function () {
-			translateWithToken(text, callback);
+			translateWithToken(text, to, callback);
 		});
 	}
 	else {
-		translateWithToken(text, callback);
+		translateWithToken(text, to, callback);
 	}
 };
