@@ -16,6 +16,10 @@ function join(connection) {
 			if (player.connection === null) {
 				player.connection = connection;
 				connection.game = game;
+				connection.send(JSON.stringify({
+					command: 'setPlayer',
+					id: player.id
+				}));
 				return;
 			}
 		}
@@ -24,6 +28,7 @@ function join(connection) {
 	newgame.players[0].connection = connection;
 	connection.game = newgame;
 	games.push(newgame);
+	connection.send(JSON.stringify({ command: 'setPlayer', id: 0 }));
 }
 
 function findPlayer(connection) {
@@ -92,6 +97,7 @@ function sendUpdates() {
 							if (person === player) continue;
 							player.connection.send(JSON.stringify({
 								command: 'updatePerson',
+								id: person.id,
 								x: person.x,
 								y: person.y,
 								sleeping: person.player && person.connection === null
