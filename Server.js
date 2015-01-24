@@ -16,6 +16,7 @@ function updateAllPlayers(game) {
 }
 
 function join(connection) {
+	console.log('Adding new connection.');
 	for (var g in games) {
 		var game = games[g];
 		for (var p in game.players) {
@@ -103,6 +104,7 @@ server.on('connection', function connection(connection) {
 		});
 		connection.on('close', function () {
 			try {
+				console.log('Lost a connection.');
 				for (var p in this.game.players) {
 					var player = this.game.players[p];
 					if (player.connection === this) {
@@ -169,7 +171,3 @@ function sendUpdates() {
 }
 
 sendUpdates();
-
-//Translator.translate('Guten Tag, wer bist Du denn?', 'en', function (translation) {
-//	console.log('Translation:' +  translation);
-//});
