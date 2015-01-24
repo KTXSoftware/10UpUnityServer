@@ -49,6 +49,7 @@ server.on('connection', function connection(connection) {
 				console.log('received: %s', message);
 				var msg = JSON.parse(message);
 				var player = findPlayer(this);
+				player.changed = true;
 				switch (msg.command) {
 					case 'move':
 						player.x = msg.x;
@@ -95,6 +96,8 @@ function sendUpdates() {
 						for (var per in floor.persons) {
 							var person = floor.persons[per];
 							if (person === player) continue;
+							if (!person.changed) continue;
+							person.changed = false;
 							player.connection.send(JSON.stringify({
 								command: 'updatePerson',
 								id: person.id,

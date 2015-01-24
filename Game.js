@@ -7,6 +7,7 @@ var Person = function (id, player) {
 	this.player = player;
 	this.connection = null;
 	this.floor = -1;
+	this.changed = false;
 };
 
 Person.prototype.run = function () {
