@@ -56,6 +56,10 @@ Game.prototype.setFloor = function (player, floor) {
 };
 
 Game.prototype.createDoor = function (id) {
+	for (var d in this.floors[0].doors) {
+		var door = this.floors[0].doors[d];
+		if (door.id === id) return;
+	}
 	this.floors[0].doors.push(new Door(id));
 };
 
