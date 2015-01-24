@@ -55,7 +55,7 @@ server.on('connection', function connection(connection) {
 		join(connection);
 		connection.on('message', function incoming(message) {
 			try {
-				console.log('received: %s', message);
+				//console.log('received: %s', message);
 				var msg = JSON.parse(message);
 				var player = findPlayer(this);
 				player.changed = true;
@@ -66,6 +66,18 @@ server.on('connection', function connection(connection) {
 						break;
 					case 'enter':
 						player.floor = msg.floor;
+						break;
+					case 'speak':
+						for (var p in connection.game.players) {
+							(function () {
+								var otherplayer = connection.game.players[p];
+								if (otherplayer !== player) {
+									Translator.translate(msg.text, 'de', function (text) {
+										if (otherplayer.connection !== null) otherplayer.connection.send(JSON.stringify({command: 'speak', text: text}));
+									});
+								}
+							})();
+						}
 						break;
 				}
 			}
