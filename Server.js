@@ -82,6 +82,19 @@ server.on('connection', function connection(connection) {
 					case 'language':
 						player.language = msg.language;
 						break;
+					case 'createDoor':
+						connection.game.createDoor(msg.id);
+						break;
+					case 'doorSetOpened':
+						var door1 = connection.game.findDoor(msg.id);
+						door1.opened = msg.opened;
+						door1.changed = true;
+						break;
+					case 'doorSetHealth':
+						var door2 = connection.game.findDoor(msg.id);
+						door2.health = msg.health;
+						door2.changed = true;
+						break;
 				}
 			}
 			catch (error) {
@@ -131,6 +144,17 @@ function sendUpdates() {
 								x: person.x,
 								y: person.y,
 								sleeping: person.player && person.connection === null
+							}));
+						}
+						for (var d in floor.doors) {
+							var door = floor.doors[d];
+							if (!door.changed) continue;
+							door.changed = false;
+							player.connection.send(JSON.stringify({
+								command: 'changeDoor',
+								id: door.id,
+								opened: door.opened,
+								health: door.health
 							}));
 						}
 					}

@@ -19,8 +19,16 @@ var Item = function () {
 
 };
 
+var Door = function (id) {
+	this.id = id;
+	this.opened = false;
+	this.health = 100;
+	this.changed = false;
+};
+
 var Floor = function () {
 	this.persons = [];
+	this.doors = [];
 	this.items = [];
 };
 
@@ -45,6 +53,18 @@ Game.prototype.setFloor = function (player, floor) {
 	}
 	this.floors[floor].persons.push(player);
 	player.floor = floor;
+};
+
+Game.prototype.createDoor = function (id) {
+	this.floors[0].doors.push(new Door(id));
+};
+
+Game.prototype.findDoor = function (id) {
+	for (var d in this.floors[0].doors) {
+		var door = this.floors[0].doors[d];
+		if (door.id === id) return door;
+	}
+	return null;
 };
 
 module.exports = Game;
