@@ -31,10 +31,18 @@ var Game = function () {
 	this.floors.push(new Floor());
 	this.floors.push(new Floor());
 
-	this.floors[0].persons.push(this.players[0]);
-	this.floors[1].persons.push(this.players[1]);
+	this.setFloor(this.players[0], 0);
+	this.setFloor(this.players[1], 0);
 
 	this.floors[0].items.push(new Item());
+};
+
+Game.prototype.setFloor = function (player, floor) {
+	if (player.floor !== -1) {
+		this.floors[player.floor].persons.remove(player);
+	}
+	this.floors[floor].persons.push(player);
+	player.floor = floor;
 };
 
 module.exports = Game;

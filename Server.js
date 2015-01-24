@@ -78,7 +78,7 @@ server.on('connection', function connection(connection) {
 	}
 });
 
-setTimeout(function () {
+function sendUpdates() {
 	try {
 		for (var g in games) {
 			var game = games[g];
@@ -89,7 +89,13 @@ setTimeout(function () {
 						var floor = game.floors[f];
 						for (var per in floor.persons) {
 							var person = floor.persons[per];
-							player.connection.send(JSON.stringify({command: 'movePerson', x: person.x, y: person.y}));
+							if (person === player) continue;
+							player.connection.send(JSON.stringify({
+								command: 'updatePerson',
+								x: person.x,
+								y: person.y,
+								sleeping: person.player && person.connection === null
+							}));
 						}
 					}
 				}
@@ -99,4 +105,7 @@ setTimeout(function () {
 	catch (error) {
 		console.error('Error in timeout: ' + error);
 	}
-}, 100);
+	setTimeout(sendUpdates, 100);
+}
+
+sendUpdates();
