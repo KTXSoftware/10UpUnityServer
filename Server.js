@@ -15,6 +15,7 @@ function join(connection) {
 			var player = game.players[p];
 			if (player.connection === null) {
 				player.connection = connection;
+				player.changed = true;
 				connection.game = game;
 				connection.send(JSON.stringify({
 					command: 'setPlayer',
@@ -26,6 +27,7 @@ function join(connection) {
 	}
 	var newgame = new Game();
 	newgame.players[0].connection = connection;
+	newgame.players[0].changed = true;
 	connection.game = newgame;
 	games.push(newgame);
 	connection.send(JSON.stringify({ command: 'setPlayer', id: 0 }));
@@ -69,6 +71,7 @@ server.on('connection', function connection(connection) {
 				for (var p in this.game.players) {
 					var player = this.game.players[p];
 					if (player.connection === this) {
+						player.changed = true;
 						player.connection = null;
 						return;
 					}
