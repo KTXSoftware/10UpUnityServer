@@ -2,8 +2,8 @@
 
 var Person = function (id, player) {
 	this.id = id;
-	this.x = 0;
-	this.y = 0;
+	this.x = -100;
+	this.y = -100;
 	this.player = player;
 	this.connection = null;
 	this.floor = -1;

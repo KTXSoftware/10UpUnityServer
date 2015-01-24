@@ -122,6 +122,8 @@ function sendUpdates() {
 							var person = floor.persons[per];
 							if (person === player) continue;
 							if (!person.changed) continue;
+							if (person.x < 0) continue;
+							if (person.y < 0) continue;
 							person.changed = false;
 							player.connection.send(JSON.stringify({
 								command: 'updatePerson',
