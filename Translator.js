@@ -47,7 +47,14 @@ function translateWithToken(text, to, callback) {
 		res.setEncoding('utf8');
 		res.on('data', function (chunk) {
 			console.log('Translate_BODY: ' + chunk);
-			callback(chunk.substring(chunk.indexOf('>') + 1, chunk.lastIndexOf('<')));
+			if (chunk.substr(0, 6) === '<html>') {
+				updateToken(function () {
+					translateWithToken(text, to, callback);
+				});
+			}
+			else {
+				callback(chunk.substring(chunk.indexOf('>') + 1, chunk.lastIndexOf('<')));
+			}
 		});
 	});
 	transRequest.end();
