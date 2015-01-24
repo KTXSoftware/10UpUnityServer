@@ -1,7 +1,7 @@
 "use strict";
 
 var Game = require('./Game.js');
-
+var Translator = require('./Translator.js');
 var WebSocketServer = require('ws').Server;
 
 var server = new WebSocketServer({ port: 8789 });
