@@ -8,6 +8,7 @@ var Person = function (id, player) {
 	this.connection = null;
 	this.floor = -1;
 	this.changed = false;
+	this.language = 'en';
 };
 
 Person.prototype.run = function () {

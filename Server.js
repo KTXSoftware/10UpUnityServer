@@ -72,12 +72,15 @@ server.on('connection', function connection(connection) {
 							(function () {
 								var otherplayer = connection.game.players[p];
 								if (otherplayer !== player) {
-									Translator.translate(msg.text, 'de', function (text) {
+									Translator.translate(msg.text, otherplayer.language, function (text) {
 										if (otherplayer.connection !== null) otherplayer.connection.send(JSON.stringify({command: 'speak', text: text}));
 									});
 								}
 							})();
 						}
+						break;
+					case 'language':
+						player.language = msg.language;
 						break;
 				}
 			}
