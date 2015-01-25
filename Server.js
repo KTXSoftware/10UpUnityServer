@@ -2,18 +2,12 @@
 
 var Game = require('./Game.js');
 var Translator = require('./Translator.js');
+var Updater = require('./Updater.js');
 var WebSocketServer = require('ws').Server;
 
 var server = new WebSocketServer({ port: 8789 });
 
 var games = [];
-
-function updateAllPlayers(game) {
-	for (var p in game.players) {
-		var player = game.players[p];
-		player.changed = true;
-	}
-}
 
 function join(connection) {
 	console.log('Adding new connection.');
@@ -23,22 +17,22 @@ function join(connection) {
 			var player = game.players[p];
 			if (player.connection === null) {
 				player.connection = connection;
-				updateAllPlayers(game);
 				connection.game = game;
 				connection.send(JSON.stringify({
 					command: 'setPlayer',
 					id: player.id
 				}));
+				connection.game.setFloor(player, player.floor);
 				return;
 			}
 		}
 	}
 	var newgame = new Game();
 	newgame.players[0].connection = connection;
-	updateAllPlayers(newgame);
 	connection.game = newgame;
 	games.push(newgame);
 	connection.send(JSON.stringify({ command: 'setPlayer', id: 0 }));
+	connection.game.setFloor(player, player.floor);
 }
 
 function findPlayer(connection) {
@@ -51,6 +45,22 @@ function findPlayer(connection) {
 	return null;
 }
 
+function findOtherPlayer(connection) {
+	for (var p in connection.game.players) {
+		var player = connection.game.players[p];
+		if (player.connection !== null && player.connection !== connection) {
+			return player;
+		}
+	}
+	return null;
+}
+
+function onSameFloor(player1, player2) {
+	if (player1 === null) return false;
+	if (player2 === null) return false;
+	return player1.floor === player2.floor;
+}
+
 server.on('connection', function connection(connection) {
 	try {
 		join(connection);
@@ -59,26 +69,28 @@ server.on('connection', function connection(connection) {
 				//console.log('received: %s', message);
 				var msg = JSON.parse(message);
 				var player = findPlayer(this);
-				player.changed = true;
+				var otherplayer = findOtherPlayer(this);
 				switch (msg.command) {
 					case 'move':
 						player.x = msg.x;
 						player.y = msg.y;
+						if (onSameFloor(player, otherplayer)) {
+							Updater.updatePerson(otherplayer, player);
+						}
 						break;
 					case 'enter':
 						player.floor = msg.floor;
 						break;
 					case 'speak':
-						for (var p in connection.game.players) {
-							(function () {
-								var otherplayer = connection.game.players[p];
-								if (otherplayer !== player) {
-									Translator.translate(msg.text, otherplayer.language, function (text) {
-										if (otherplayer.connection !== null) otherplayer.connection.send(JSON.stringify({command: 'speak', text: text}));
-									});
-								}
-							})();
-						}
+						(function () {
+							if (onSameFloor(player, otherplayer)) {
+								Translator.translate(msg.text, otherplayer.language, function (text) {
+									if (onSameFloor(player, otherplayer)) {
+										otherplayer.connection.send(JSON.stringify({command: 'speak', text: text}));
+									}
+								});
+							}
+						})();
 						break;
 					case 'language':
 						player.language = msg.language;
@@ -86,12 +98,22 @@ server.on('connection', function connection(connection) {
 					case 'doorSetOpened':
 						var door1 = connection.game.findDoor(msg.id);
 						door1.opened = msg.opened;
-						door1.changed = true;
+						if (onSameFloor(player, otherplayer)) {
+							Updater.updateDoor(otherplayer, door1);
+						}
 						break;
 					case 'doorSetHealth':
 						var door2 = connection.game.findDoor(msg.id);
 						door2.health = msg.health;
-						door2.changed = true;
+						if (onSameFloor(player, otherplayer)) {
+							Updater.updateDoor(otherplayer, door2);
+						}
+						break;
+					case 'callElevator':
+						connection.game.elevator.goto(player.floor);
+						break;
+					case 'sendElevator':
+						connection.game.elevation.goto(msg.floor);
 						break;
 				}
 			}
@@ -120,51 +142,3 @@ server.on('connection', function connection(connection) {
 		console.error('Error in connection: ' + error);
 	}
 });
-
-function sendUpdates() {
-	try {
-		for (var g in games) {
-			var game = games[g];
-			for (var p in game.players) {
-				var player = game.players[p];
-				if (player.connection !== null && player.floor !== -1) {
-					for (var f in game.floors) {
-						var floor = game.floors[f];
-						for (var per in floor.persons) {
-							var person = floor.persons[per];
-							if (person === player) continue;
-							if (!person.changed) continue;
-							if (person.x < 0) continue;
-							if (person.y < 0) continue;
-							person.changed = false;
-							player.connection.send(JSON.stringify({
-								command: 'updatePerson',
-								id: person.id,
-								x: person.x,
-								y: person.y,
-								sleeping: person.player && person.connection === null
-							}));
-						}
-						for (var d in floor.doors) {
-							var door = floor.doors[d];
-							if (!door.changed) continue;
-							door.changed = false;
-							player.connection.send(JSON.stringify({
-								command: 'changeDoor',
-								id: door.id,
-								opened: door.opened,
-								health: door.health
-							}));
-						}
-					}
-				}
-			}
-		}
-	}
-	catch (error) {
-		console.error('Error in timeout: ' + error);
-	}
-	setTimeout(sendUpdates, 100);
-}
-
-sendUpdates();
