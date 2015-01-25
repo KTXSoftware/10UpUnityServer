@@ -108,7 +108,7 @@ var Game = function () {
 	this.floors.push(new Floor(2));
 
 	this.setFloor(this.players[0], 0);
-	this.setFloor(this.players[1], 1);
+	this.setFloor(this.players[1], 0);
 };
 
 Game.prototype.setFloor = function (player, floor) {
