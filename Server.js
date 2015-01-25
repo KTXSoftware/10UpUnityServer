@@ -32,7 +32,7 @@ function join(connection) {
 	connection.game = newgame;
 	games.push(newgame);
 	connection.send(JSON.stringify({ command: 'setPlayer', id: 0 }));
-	connection.game.setFloor(player, player.floor);
+	connection.game.setFloor(newgame.players[0], newgame.players[0].floor);
 }
 
 function findPlayer(connection) {

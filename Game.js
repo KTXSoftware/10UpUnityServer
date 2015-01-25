@@ -113,7 +113,8 @@ var Game = function () {
 
 Game.prototype.setFloor = function (player, floor) {
 	if (player.floor !== -1) {
-		this.floors[player.floor].persons.remove(player);
+		var index = this.floors[player.floor].persons.indexOf(player);
+		if (index >= 0) this.floors[player.floor].persons.splice(index, 1);
 	}
 	this.floors[floor].persons.push(player);
 	player.floor = floor;
