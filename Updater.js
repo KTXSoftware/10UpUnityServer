@@ -7,6 +7,7 @@ exports.updatePerson = function (player, person) {
 		id: person.id,
 		x: person.x,
 		y: person.y,
+		floor: person.floor,
 		sleeping: person.player && person.connection === null
 	}));
 };

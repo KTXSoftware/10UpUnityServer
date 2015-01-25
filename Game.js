@@ -21,6 +21,7 @@ var Door = function (id, floor) {
 
 var Elevator = function (game, floor) {
 	this.game = game;
+	this.persons = [];
 	this.floor = floor;
 	this.next = [];
 	this.up = false;
@@ -47,6 +48,15 @@ Elevator.prototype.sort = function () {
 
 Elevator.prototype.arrive = function () {
 	this.floor = this.next.pop();
+	for (var p in this.persons) {
+		var person = this.persons[p];
+		person.floor = this.floor;
+		for (var pl in this.game.players) {
+			var player = this.game.players[pl];
+			Updater.updatePerson(player, person);
+		}
+	}
+	this.persons = [];
 	this.sendUpdates();
 	if (this.next.length > 0) {
 		var self = this;
@@ -55,8 +65,8 @@ Elevator.prototype.arrive = function () {
 			self.sendUpdates();
 			setTimeout(function () {
 				self.arrive();
-			}, 5 * 1000);
-		}, 5 * 1000);
+			}, 2 * 1000);
+		}, 2 * 1000);
 	}
 	else {
 		this.busy = false;
@@ -81,8 +91,8 @@ Elevator.prototype.goto = function (floor) {
 		self.sendUpdates();
 		setTimeout(function () {
 			self.arrive();
-		}, 5 * 1000);
-	}, 5 * 1000);
+		}, 2 * 1000);
+	}, 2 * 1000);
 };
 
 var Floor = function (id) {
@@ -107,8 +117,8 @@ var Game = function () {
 	this.floors.push(new Floor(1));
 	this.floors.push(new Floor(2));
 
-	this.setFloor(this.players[0], 0);
-	this.setFloor(this.players[1], 0);
+	this.setFloor(this.players[0], 1);
+	this.setFloor(this.players[1], 1);
 };
 
 Game.prototype.setFloor = function (player, floor) {

@@ -112,8 +112,9 @@ server.on('connection', function connection(connection) {
 					case 'callElevator':
 						connection.game.elevator.goto(player.floor);
 						break;
-					case 'sendElevator':
-						connection.game.elevation.goto(msg.floor);
+					case 'useElevator':
+						connection.game.elevator.persons.push(player);
+						connection.game.elevator.goto(msg.destination);
 						break;
 				}
 			}
