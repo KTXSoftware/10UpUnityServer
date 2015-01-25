@@ -96,7 +96,7 @@ server.on('connection', function connection(connection) {
 						player.language = msg.language;
 						break;
 					case 'doorSetOpened':
-						var door1 = connection.game.findDoor(msg.id);
+						var door1 = connection.game.findDoor(player.floor, msg.id);
 						door1.opened = msg.opened;
 						if (onSameFloor(player, otherplayer)) {
 							Updater.updateDoor(otherplayer, door1);
