@@ -128,8 +128,16 @@ server.on('connection', function connection(connection) {
 				for (var p in this.game.players) {
 					var player = this.game.players[p];
 					if (player.connection === this) {
-						player.changed = true;
 						player.connection = null;
+						if (this.game.players[0].connection === null && this.game.players[1].connection === null) {
+							var index = games.indexOf(this.game);
+							games.splice(index, 1);
+							console.log('Removing game.');
+						}
+						else {
+							if (player === this.game.players[1]) Updater.updatePerson(this.game.players[0], this.game.players[1]);
+							else Updater.updatePerson(this.game.players[1], this.game.players[0]);
+						}
 						return;
 					}
 				}
