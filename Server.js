@@ -83,9 +83,6 @@ server.on('connection', function connection(connection) {
 					case 'language':
 						player.language = msg.language;
 						break;
-					case 'createDoor':
-						connection.game.createDoor(msg.id);
-						break;
 					case 'doorSetOpened':
 						var door1 = connection.game.findDoor(msg.id);
 						door1.opened = msg.opened;

@@ -30,6 +30,10 @@ var Floor = function () {
 	this.persons = [];
 	this.doors = [];
 	this.items = [];
+
+	this.doors.push(new Door(0));
+	this.doors.push(new Door(1));
+	this.doors.push(new Door(2));
 };
 
 var Game = function () {
@@ -53,14 +57,6 @@ Game.prototype.setFloor = function (player, floor) {
 	}
 	this.floors[floor].persons.push(player);
 	player.floor = floor;
-};
-
-Game.prototype.createDoor = function (id) {
-	for (var d in this.floors[0].doors) {
-		var door = this.floors[0].doors[d];
-		if (door.id === id) return;
-	}
-	this.floors[0].doors.push(new Door(id));
 };
 
 Game.prototype.findDoor = function (id) {
