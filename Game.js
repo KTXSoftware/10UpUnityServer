@@ -50,11 +50,7 @@ Elevator.prototype.arrive = function () {
 	this.floor = this.next.pop();
 	for (var p in this.persons) {
 		var person = this.persons[p];
-		person.floor = this.floor;
-		for (var pl in this.game.players) {
-			var player = this.game.players[pl];
-			Updater.updatePerson(player, person);
-		}
+		this.game.setFloor(person, this.floor);
 	}
 	this.persons = [];
 	this.sendUpdates();
@@ -131,7 +127,7 @@ Game.prototype.setFloor = function (player, floor) {
 
 	for (var p in floor.persons) {
 		var person = floor.persons[p];
-		if (person !== player) Updater.updatePerson(player, person);
+		Updater.updatePerson(player, person);
 	}
 
 	for (var d in floor.doors) {
